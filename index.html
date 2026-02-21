@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Open Graph meta tags for rich link previews -->
+    <meta property="og:title" content="Mita — Anime List">
+    <meta property="og:description" content="Tap to import this anime list in Mita">
+    <meta property="og:image" content="https://csct.github.io/mita-link/icon.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Mita — Anime List">
+    <meta name="twitter:description" content="Tap to import this anime list in Mita">
+    <meta name="twitter:image" content="https://csct.github.io/mita-link/icon.png">
+
+    <title>Mita — Anime List</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            padding: 40px 24px;
+            max-width: 400px;
+        }
+        .icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 22px;
+            margin-bottom: 24px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 32px;
+        }
+        .list-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #7c9af8;
+            margin-bottom: 8px;
+        }
+        .list-count {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 32px;
+        }
+        .open-btn {
+            display: inline-block;
+            background: #7c9af8;
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .open-btn:active { opacity: 0.8; }
+        .fallback {
+            font-size: 13px;
+            color: #666;
+        }
+        .fallback a { color: #7c9af8; }
+        .spinner {
+            margin-bottom: 16px;
+        }
+        .spinner::after {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #333;
+            border-top-color: #7c9af8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #redirect-msg { display: block; }
+        #fallback-msg { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="icon.png" alt="Mita" class="icon">
+        <div class="title">Mita</div>
+        <div class="subtitle">Anime Tracker</div>
+
+        <div id="list-info" style="display: none;">
+            <div class="list-name" id="list-name"></div>
+            <div class="list-count" id="list-count"></div>
+        </div>
+
+        <div id="redirect-msg">
+            <div class="spinner"></div>
+            <p class="subtitle">Opening Mita...</p>
+        </div>
+
+        <div id="fallback-msg">
+            <a class="open-btn" id="open-link" href="#">Open in Mita</a>
+            <br><br>
+            <p class="fallback">Don't have the app? <!-- <a href="https://apps.apple.com/app/mita/idXXXXXX">Get Mita</a> --></p>
+        </div>
+    </div>
+
+    <script>
+        // Read query params and build the mita:// deep link
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get('name');
+        const icon = params.get('icon') || 'list.bullet';
+        const ids = params.get('ids');
+        const color = params.get('color');
+
+        // Show list info if available
+        if (name) {
+            document.getElementById('list-info').style.display = 'block';
+            document.getElementById('list-name').textContent = name;
+            if (ids) {
+                const count = ids.split(',').length;
+                document.getElementById('list-count').textContent = count + ' anime';
+            }
+        }
+
+        // Build mita:// deep link
+        let deepLink = 'mita://list?';
+        const deepParams = new URLSearchParams();
+        if (name) deepParams.set('name', name);
+        if (icon) deepParams.set('icon', icon);
+        if (ids) deepParams.set('ids', ids);
+        if (color) deepParams.set('color', color);
+        deepLink += deepParams.toString();
+
+        document.getElementById('open-link').href = deepLink;
+
+        // Try to open the app immediately
+        window.location.href = deepLink;
+
+        // If still here after 1.5s, show the fallback UI
+        setTimeout(function() {
+            document.getElementById('redirect-msg').style.display = 'none';
+            document.getElementById('fallback-msg').style.display = 'block';
+        }, 1500);
+    </script>
+</body>
+</html>
